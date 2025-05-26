@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio - BIO PAHRIAL</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Arial, sans-serif;
+      background: black; /* Akan tertutup video jika video berhasil dimuat */
+      color: white;
+      overflow-x: hidden; 
+    }
+
+    /* Video Latar Belakang */
+    #background-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw; /* Lebar viewport penuh */
+      height: 100vh; /* Tinggi viewport penuh */
+      object-fit: cover; /* Video menutupi area, memotong jika perlu */
+      z-index: -1; /* Diletakkan di belakang semua konten lain */
+    }
+
+    /* Tombol Hamburger Menu */
+    .hamburger-icon {
+      position: fixed;
+      top: 15px;
+      left: 20px;
+      font-size: 1.6em; 
+      color: #0096FF; 
+      cursor: pointer;
+      z-index: 1003; 
+      background: rgba(34, 34, 34, 0.8); 
+      padding: 8px 12px;
+      border-radius: 5px;
+      transition: left 0.3s ease-in-out; 
+    }
+
+    /* Sidenav (Menu Samping) */
+    .sidenav {
+      height: 100%; 
+      width: 250px; 
+      position: fixed; 
+      z-index: 1002; 
+      top: 0;
+      left: 0;
+      background-color: #111; 
+      overflow-x: hidden; 
+      transition: transform 0.3s ease-in-out; 
+      transform: translateX(-100%); 
+      padding-top: 60px; 
+      box-shadow: 3px 0px 15px rgba(0,0,0,0.5); 
+    }
+
+    .sidenav.open {
+      transform: translateX(0); 
+    }
+
+    .sidenav a {
+      padding: 10px 15px 10px 32px;
+      text-decoration: none;
+      font-size: 1.1em;
+      color: #ccc; 
+      display: block;
+      transition: color 0.3s, background-color 0.3s;
+      font-weight: bold;
+      border-left: 3px solid transparent; 
+    }
+
+    .sidenav a:hover {
+      color: #0096FF; 
+      background-color: #222; 
+    }
+    
+    .sidenav a.active-side-link {
+      color: #0096FF; 
+      border-left: 3px solid #0096FF; 
+    }
+
+    .sidenav .closebtn { 
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 2em;
+      color: #888;
+    }
+    .sidenav .closebtn:hover {
+      color: #0096FF;
+    }
+
+    /* Konten Utama */
+    #main-content {
+      transition: filter 0.3s ease-in-out;
+      position: relative; /* Diperlukan untuk stacking context z-index */
+      z-index: 1; /* Memastikan konten utama di atas video latar belakang */
+    }
+
+    #main-content.sidenav-open-dim {
+      filter: brightness(0.4) blur(3px); 
+    }
+    
+    .topnav {
+      display: none; 
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      margin-top: 70px; 
+    }
+    header h1 {
+      font-size: 2.2em;
+      color: #0096FF; 
+      font-style: italic;
+      letter-spacing: 2px;
+    }
+
+    .home {
+      display: flex;
+      justify-content: center;
+      padding: 80px 20px;
+      text-align: center;
+      /* Latar belakang bagian home akan transparan, menampilkan video */
+    }
+    .home-text {
+      max-width: 600px;
+    }
+
+    .profile-picture-circular {
+      width: 150px; 
+      height: 150px;
+      border-radius: 50%; 
+      object-fit: cover; 
+      border: 4px solid #0096FF; 
+      margin: 0 auto 25px auto; 
+      display: block; 
+      box-shadow: 0px 0px 15px rgba(0, 150, 255, 0.5); 
+    }
+
+    .home-text h2 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    .home-text h2 .highlight-name {
+      color: #0096FF; 
+    }
+    .home-text h1 {
+      font-size: 2.5em;
+      font-weight: bold;
+    }
+    .home-text p {
+      margin: 20px 0;
+      color: #ccc;
+      white-space: pre-line;
+      line-height: 1.5;
+    }
+    .socials a {
+      margin: 0 10px;
+      font-size: 1.5em;
+      color: #0096FF; 
+      text-decoration: none;
+    }
+
+    .typed-text .letter {
+      display: inline-block;
+      position: relative;
+      transition: transform 0.5s ease-out, opacity 0.5s;
+    }
+    .typed-text .fall-down {
+      animation: fallDown 0.8s ease-in forwards;
+    }
+    .typed-text .rise-up {
+      animation: riseUp 0.8s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes fallDown {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(120vh) rotate(720deg); opacity: 0; }
+    }
+    @keyframes riseUp {
+      0% { transform: translateY(-120vh); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    /* CSS Section About - Penyesuaian pada .about-section p */
+    .about-section, .service-card, .skill-card, #foto-area { 
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1s ease-out, transform 1s ease-out;
+    }
+    .about-section.show, .service-card.show, .skill-card.show, #foto-area.show { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .about-section h2 { 
+        font-size: 2em; margin-bottom: 30px; 
+    }
+
+    .about-section p {
+        max-width: 750px; 
+        margin: 0 auto 20px auto; 
+        color: #ccc;
+        line-height: 1.7; 
+        text-align: justify; 
+    }
+    .about-section p:last-child {
+        margin-bottom: 0; 
+    }
+
+
+    .skill-bar {
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 10px;
+      margin-bottom: 20px;
+    }
+    .skill-bar-fill {
+      background: #0096FF; 
+      height: 100%;
+      width: 0;
+      transition: width 2s ease-in-out;
+    }
+
+    .about-section h2, 
+    #skills h2,
+    .skill-card i, .skill-card h3,
+    .skill-card p span, 
+    #services h2,
+    .service-card i, .service-card h3,
+    .service-card p.service-price {
+      color: #0096FF; 
+    }
+    .service-card p { 
+        color: #ccc; 
+    }
+    .service-card p.service-price { 
+        color: #0096FF;
+        font-weight: bold;
+    }
+
+    #foto-area {
+      padding: 60px 0; 
+      background: #111; /* Bagian ini akan menutupi video */
+      text-align: center;
+      overflow: hidden; 
+    }
+    #foto-area h2 {
+      color: #0096FF; 
+      font-size: 2em;
+      margin-bottom: 30px;
+    }
+    #foto-area .foto-container {
+      max-width: 100%; 
+      padding: 20px 0; 
+      display: flex; 
+      overflow-x: auto; 
+      gap: 20px; 
+      -webkit-overflow-scrolling: touch; 
+      scrollbar-width: thin; 
+      scrollbar-color: #0096FF #222; 
+      perspective: 1000px; 
+      padding-left: calc(50vw - 140px - 10px); 
+      padding-right: calc(50vw - 140px - 10px);
+    }
+
+    #foto-area .foto-container::-webkit-scrollbar {
+      height: 8px; 
+      background: #1a1a1a;
+    }
+    #foto-area .foto-container::-webkit-scrollbar-thumb {
+      background-color: #0096FF; 
+      border-radius: 10px;
+    }
+
+    #foto-area .foto-item {
+      width: 280px; 
+      height: 200px; 
+      flex-shrink: 0; 
+      overflow: hidden; 
+      border-radius: 10px; 
+      background-color: #222;
+      transform-style: preserve-3d; 
+      transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                  opacity 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+      will-change: transform, opacity; 
+      cursor: pointer;
+    }
+    #foto-area .foto-item img {
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      display: block; 
+      border-radius: 10px; 
+    }
+  </style>
+</head>
+<body id="top">
+
+  <video id="background-video" autoplay loop muted>
+    <source src="6bd71ae5727428edbccfdaceb14956b6.mp4" type="video/mp4">
+    Browser Anda tidak mendukung tag video.
+  </video>
+
+  <div id="hamburger-icon" class="hamburger-icon">
+    <i class="fas fa-bars"></i>
+  </div>
+
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" id="closeNavBtn">&times;</a>
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#services">Service</a>
+    <a href="#foto-area">Foto</a>
+    <a href="#top">Contact</a>
+  </div>
+  
+  <main id="main-content">
+    <header>
+      <h1>Welcome too my web</h1>
+    </header>
+
+    <section class="home" id="home">
+      <div class="home-text">
+        <img src="IMG-20250402-WA0024.jpg" alt="Foto Profil Pahrial" class="profile-picture-circular">
+        
+        <h2>Hey I'm <span class="highlight-name">Pahrial</span></h2>
+        <h1><span class="typed-text" id="typed"></span></h1>
+        <p>
+  Kode adalah bahasa kreativitas yang tertata rapi.
+  Setiap baris membawa ide menjadi nyata.
+  Teknologi dijalankan dengan ketelitian dan seni.
+  Membangun masa depan lewat logika dan imajinasi.
+        </p>
+        <div class="socials">
+          <a href="https://instagram.com/bio_pahrial" target="_blank"><i class="fab fa-instagram"></i></a>
+          <a href="https://github.com/" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://www.facebook.com/share/1ByEbvypps/" target="_blank"><i class="fab fa-facebook"></i></a>
+          <a href="https://wa.me/6283894972058" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section" id="about" style="padding: 80px 20px; background: #1a1a1a; text-align: center;">
+      <h2 style="font-size: 2em; margin-bottom: 30px; color: #0096FF;">Perjalanan Saya di Dunia Coding</h2>
+      <p>
+        Saya mulai terjun ke dunia programming sejak tahun 2020. Pada tahun 2020 hingga 2022, saya lebih banyak bermain di sisi red team—menjelajahi celah keamanan, menguji sistem, dan mempelajari struktur platform besar seperti Facebook dan Instagram. Dari fase ini, saya banyak belajar tentang bagaimana sistem bekerja dari dalam, khususnya dalam aspek keamanan dan logika sistem.
+      </p>
+      <p>
+        Namun, sejak 2023, saya memutuskan untuk beralih ke jalur yang lebih positif. Saya mulai fokus membangun, bukan membongkar. Kini saya mengembangkan berbagai website dan sistem digital, berkontribusi melalui karya yang bermanfaat dan etis. Dari yang awalnya tertarik membongkar sistem orang, kini saya bersemangat membangun sistem sendiri.
+      </p>
+    </section>
+    <section id="skills" style="padding: 60px 20px; background: #1a1a1a; text-align: center;">
+      <h2 style="font-size: 2em; margin-bottom: 30px;">My Skills</h2>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+        <div class="skill-card" style="background: #222; padding: 25px; border-radius: 15px; width: 280px;">
+          <i class="fas fa-car" style="font-size: 2em;"></i>
+          <h3 style="margin: 10px 0;">Frontend Development</h3>
+          <p><span style="font-weight: bold;">HTML</span> <span style="float:right; font-weight: bold;">95%</span></p>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="95%"></div></div>
+          <p><span style="font-weight: bold;">CSS</span> <span style="float:right; font-weight: bold;">80%</span></p>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="80%"></div></div>
+          <p><span style="font-weight: bold;">JavaScript</span> <span style="float:right; font-weight: bold;">70%</span></p>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="70%"></div></div>
+        </div>
+        <div class="skill-card" style="background: #222; padding: 25px; border-radius: 15px; width: 280px;">
+          <i class="fas fa-database" style="font-size: 2em;"></i>
+          <h3 style="margin: 10px 0;">Backend Development</h3>
+          <p><span style="font-weight: bold;">PHP</span> <span style="float:right; font-weight: bold;">60%</span></p>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="60%"></div></div>
+          <p><span style="font-weight: bold;">Node.js</span> <span style="float:right; font-weight: bold;">60%</span></p>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="60%"></div></div>
+          <p><span style="font-weight: bold;">Python</span> <span style="float:right; font-weight: bold;">80%</span></p>
+          <div class="skill-bar"><div class="skill-bar-fill" data-width="80%"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" style="padding: 60px 20px; background: #111; text-align: center;">
+      <h2 style="font-size: 2em; margin-bottom: 30px;">My Services</h2>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+        <div class="service-card" style="background: #222; padding: 30px 20px; border-radius: 15px; width: 250px;">
+          <i class="fas fa-code" style="font-size: 2em;"></i>
+          <h3 style="margin: 15px 0;">Web Development</h3>
+          <p>Custom website development using modern technologies. Responsive design, optimized performance, and clean code.</p>
+          <p class="service-price">Starting at Rp50.000</p>
+        </div>
+        <div class="service-card" style="background: #222; padding: 30px 20px; border-radius: 15px; width: 250px;">
+          <i class="fas fa-paint-brush" style="font-size: 2em;"></i>
+          <h3 style="margin: 15px 0;">UI/UX Design</h3>
+          <p>User-centered design, wireframing, prototyping, and intuitive interface design.</p>
+          <p class="service-price">Starting at Rp50.000</p>
+        </div>
+        <div class="service-card" style="background: #222; padding: 30px 20px; border-radius: 15px; width: 250px;">
+          <i class="fas fa-bullhorn" style="font-size: 2em;"></i>
+          <h3 style="margin: 15px 0;">Digital Marketing</h3>
+          <p>SEO, social media, and content marketing to grow your online presence.</p>
+          <p class="service-price">Starting at Rp50.000</p>
+        </div>
+        <div class="service-card" style="background: #222; padding: 30px 20px; border-radius: 15px; width: 250px;">
+          <i class="fas fa-comments" style="font-size: 2em;"></i>
+          <h3 style="margin: 15px 0;">IT Consulting</h3>
+          <p>Strategic planning, technical architecture, and solution design.</p>
+          <p class="service-price">Starting at Rp50.000</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="foto-area">
+      <h2>My Photo</h2> 
+      <div class="foto-container">
+        <div class="foto-item">
+          <img src="400f22ce6f755ac476eb06c4cb45395c.jpg" alt="Foto Saya 1">
+        </div>
+        <div class="foto-item">
+          <img src="64880b9b0fe5b53bbe3f7280d262b33f.jpg" alt="Foto Saya 2">
+        </div>
+        <div class="foto-item">
+          <img src="a27d14a27b5ef7d35c241d5cc9c1deb4.jpg" alt="Foto Saya 3">
+        </div>
+        <div class="foto-item">
+          <img src="9945f78f2052b95b72532a51314b4455.jpg" alt="Foto Saya 4">
+        </div>
+        <div class="foto-item">
+          <img src="d28d173d04775b83c3833af27f51d202.jpg" alt="Foto Saya 5">
+        </div>
+        <div class="foto-item">
+          <img src="fcdaff4d3f30005e462d0d3c31cfb691.jpg" alt="Foto Saya 6">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Script untuk animasi teks ketik (typed text)
+    const texts = ["I'm a PROGRAMER", "I'm Not Hacker"];
+    let currentTextIndex = 0;
+    const typedTextTarget = document.getElementById("typed");
+
+    function showText(text, animationClass) {
+      if (!typedTextTarget) return; 
+      typedTextTarget.innerHTML = "";
+      for (let i = 0; i < text.length; i++) {
+        const span = document.createElement("span");
+        span.className = "letter " + animationClass;
+        span.textContent = text[i];
+        typedTextTarget.appendChild(span);
+      }
+    }
+
+    function animateTextLoop() {
+      if (!typedTextTarget) return; 
+      const oldSpans = typedTextTarget.querySelectorAll(".letter");
+      oldSpans.forEach((span, i) => {
+        setTimeout(() => {
+          span.classList.add("fall-down");
+        }, i * 60);
+      });
+
+      const nextText = texts[(currentTextIndex + 1) % texts.length];
+
+      setTimeout(() => {
+        showText(nextText, "rise-up");
+        const newSpans = typedTextTarget.querySelectorAll(".letter");
+        newSpans.forEach((span, i) => {
+          setTimeout(() => {
+            span.classList.remove("rise-up");
+          }, 800 + i * 60);
+        });
+        currentTextIndex = (currentTextIndex + 1) % texts.length;
+      }, oldSpans.length * 60 + 800);
+
+      setTimeout(animateTextLoop, 3500);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typedTextTarget) {
+        showText(texts[currentTextIndex], ""); 
+        setTimeout(animateTextLoop, 1500);
+      }
+
+      const sectionsToObserve = document.querySelectorAll('.about-section, .service-card, .skill-card, #foto-area');
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+          }
+        });
+      }, { threshold: 0.1 }); 
+      sectionsToObserve.forEach(el => observer.observe(el));
+
+      const skillBars = document.querySelectorAll('.skill-bar-fill');
+      const fillObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const bar = entry.target;
+            const targetWidth = bar.getAttribute('data-width');
+            bar.style.width = targetWidth;
+          }
+        });
+      }, { threshold: 0.5 });
+      skillBars.forEach(bar => {
+        bar.style.width = '0'; 
+        fillObserver.observe(bar);
+      });
+
+      const fotoContainer = document.querySelector('#foto-area .foto-container');
+      const fotoItems = document.querySelectorAll('#foto-area .foto-item');
+
+      if (fotoContainer && fotoItems.length > 0) {
+        const updateItemStyles = () => {
+          const containerRect = fotoContainer.getBoundingClientRect();
+          const containerVisibleWidth = containerRect.width; 
+          fotoItems.forEach(item => {
+            const itemRect = item.getBoundingClientRect();
+            const itemCenterInViewport = itemRect.left + itemRect.width / 2;
+            const containerVisibleCenterInViewport = containerRect.left + containerVisibleWidth / 2;
+            const distanceFromContainerVisibleCenter = itemCenterInViewport - containerVisibleCenterInViewport;
+            let normalizedDistance = distanceFromContainerVisibleCenter / (containerVisibleWidth / 2.5); 
+            normalizedDistance = Math.max(-1.5, Math.min(1.5, normalizedDistance));
+            const maxRotationY = 35; const minScale = 0.60; const maxTranslateZ = -280; const minOpacity = 0.4;   
+            const rotateY = normalizedDistance * -maxRotationY; 
+            const scale = Math.max(minScale, 1 - Math.abs(normalizedDistance) * (1 - minScale));
+            const translateZ = Math.abs(normalizedDistance) * maxTranslateZ;
+            const opacity = Math.max(minOpacity, 1 - Math.abs(normalizedDistance) * (1 - minOpacity));
+            item.style.transform = `translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+            item.style.opacity = opacity;
+          });
+        };
+        function debounce(func, wait) {
+          let timeout;
+          return function executedFunction(...args) {
+            const later = () => { clearTimeout(timeout); func(...args); };
+            clearTimeout(timeout); timeout = setTimeout(later, wait);
+          };
+        }
+        const debouncedUpdateStyles = debounce(updateItemStyles, 5); 
+        const calculatePadding = () => {
+            if (fotoItems.length > 0) {
+                const itemWidth = fotoItems[0].offsetWidth || 280; 
+                const gap = parseInt(window.getComputedStyle(fotoContainer).gap) || 20; 
+                if (itemWidth > 0) {
+                    const paddingHorizontal = `calc(50vw - ${itemWidth / 2}px - ${gap / 2}px)`;
+                    fotoContainer.style.paddingLeft = paddingHorizontal;
+                    fotoContainer.style.paddingRight = paddingHorizontal;
+                } else {
+                    const fallbackPadding = `calc(50vw - 140px - 10px)`;
+                    fotoContainer.style.paddingLeft = fallbackPadding;
+                    fotoContainer.style.paddingRight = fallbackPadding;
+                }
+            }
+        };
+        calculatePadding(); 
+        requestAnimationFrame(updateItemStyles); 
+        fotoContainer.addEventListener('scroll', () => { requestAnimationFrame(debouncedUpdateStyles); });
+        window.addEventListener('resize', () => { calculatePadding(); requestAnimationFrame(debouncedUpdateStyles); });
+      }
+
+      const hamburgerIcon = document.getElementById('hamburger-icon');
+      const sidenav = document.getElementById('mySidenav');
+      const closeNavBtn = document.getElementById('closeNavBtn');
+      const mainContent = document.getElementById('main-content');
+      const sidenavLinks = sidenav.querySelectorAll('a:not(.closebtn)'); 
+
+      function openNav() {
+        sidenav.classList.add('open');
+        if (mainContent) mainContent.classList.add('sidenav-open-dim');
+        if (hamburgerIcon) hamburgerIcon.innerHTML = '<i class="fas fa-times"></i>'; 
+      }
+
+      function closeNav() {
+        sidenav.classList.remove('open');
+        if (mainContent) mainContent.classList.remove('sidenav-open-dim');
+        if (hamburgerIcon) hamburgerIcon.innerHTML = '<i class="fas fa-bars"></i>'; 
+      }
+
+      if (hamburgerIcon) {
+        hamburgerIcon.addEventListener('click', () => {
+          if (sidenav.classList.contains('open')) {
+            closeNav();
+          } else {
+            openNav();
+          }
+        });
+      }
+
+      if (closeNavBtn) {
+        closeNavBtn.addEventListener('click', closeNav);
+      }
+
+      sidenavLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (link.getAttribute('href').startsWith('#')) { 
+            closeNav();
+          }
+        });
+      });
+
+      document.addEventListener('click', (event) => {
+        if (sidenav && hamburgerIcon && sidenav.classList.contains('open') &&
+            !sidenav.contains(event.target) && 
+            !hamburgerIcon.contains(event.target)) {
+          closeNav();
+        }
+      });
+      
+      const sections = document.querySelectorAll('main section[id]'); 
+      const homeSectionOffset = document.getElementById('home') ? document.getElementById('home').offsetTop : 0;
+
+      window.addEventListener('scroll', () => {
+        let currentSectionId = '';
+        const scrollY = pageYOffset;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop - 70; 
+          const sectionHeight = section.offsetHeight;
+          if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
+        
+        if (currentSectionId === '' && scrollY < homeSectionOffset - 70) {
+             currentSectionId = 'home'; 
+        }
+
+        sidenavLinks.forEach(link => {
+          link.classList.remove('active-side-link');
+          const linkHref = link.getAttribute('href');
+          
+          if (linkHref === `#${currentSectionId}`) {
+            link.classList.add('active-side-link');
+          }
+          if (linkHref === '#top') {
+            const isAtBottom = (window.innerHeight + scrollY) >= document.body.offsetHeight - 50; 
+            if (isAtBottom) {
+                sidenavLinks.forEach(l => l.classList.remove('active-side-link')); 
+                link.classList.add('active-side-link');
+            } else if (currentSectionId === '' && scrollY < homeSectionOffset - 70 && document.querySelector('.sidenav a[href="#home"]')) {
+                link.classList.remove('active-side-link');
+            }
+          }
+        });
+
+        if (currentSectionId === 'home' && scrollY < homeSectionOffset + (sections[0] ? sections[0].offsetHeight / 2 : 200) ) {
+             const homeLink = document.querySelector('.sidenav a[href="#home"]');
+             if (homeLink) {
+                const contactLink = document.querySelector('.sidenav a[href="#top"]');
+                if (contactLink) contactLink.classList.remove('active-side-link');
+                homeLink.classList.add('active-side-link');
+             }
+        }
+      }, { passive: true }); 
+
+    }); 
+  </script>
+</body>
+</html>
